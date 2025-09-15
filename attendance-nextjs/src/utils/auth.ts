@@ -14,7 +14,7 @@ export function signToken(payload: Omit<SessionData, 'iat' | 'exp'>) {
 export function verifyToken(token: string): SessionData | null {
   try {
     return jwt.verify(token, JWT_SECRET) as SessionData;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -27,7 +27,7 @@ export function getTokenFromRequest(request: Request): string | null {
   return null;
 }
 
-export function createAuthResponse(success: boolean, message: string, data?: any) {
+export function createAuthResponse(success: boolean, message: string, data?: unknown) {
   return {
     success,
     message,

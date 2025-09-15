@@ -1,5 +1,6 @@
 import { MongoClient, Db, Collection } from 'mongodb';
 import bcrypt from 'bcryptjs';
+import { AttendanceFilters } from '@/types';
 
 const uri = process.env.MONGODB_URI as string;
 
@@ -29,6 +30,15 @@ export async function connectToDatabase() {
   const client = await clientPromise;
   const db = client.db('face_recognition_system');
   return { client, db };
+}
+
+interface AttendanceDetails {
+  date: string;
+  subject: string;
+  department: string;
+  year: string;
+  semester: string;
+  class_div: string;
 }
 
 export class Database {
@@ -101,7 +111,7 @@ export class Database {
     };
   }
 
-  async markAttendance(studentId: string, details: any) {
+  async markAttendance(studentId: string, details: AttendanceDetails) {
     const { date, subject } = details;
     
     const existingRecord = await this.studentsCollection.findOne({
@@ -127,7 +137,7 @@ export class Database {
 
     const result = await this.studentsCollection.updateOne(
       { student_id: studentId },
-      { $push: { attendance: newRecord } }
+      { $push: { attendance: newRecord } } as any // Type assertion for MongoDB operations
     );
 
     return result.modifiedCount > 0 
@@ -135,10 +145,10 @@ export class Database {
       : `Failed to mark attendance for ${studentId}.`;
   }
 
-  async getFilteredAttendance(filters: any) {
-    const pipeline: any[] = [];
-    const studentMatch: any = {};
-    const attendanceMatch: any = {};
+  async getFilteredAttendance(filters: AttendanceFilters) {
+    const pipeline: Record<string, unknown>[] = [];
+    const studentMatch: Record<string, string> = {};
+    const attendanceMatch: Record<string, string> = {};
 
     if (filters.student_id) studentMatch.student_id = filters.student_id;
     if (filters.department) studentMatch.department = filters.department;
@@ -155,7 +165,7 @@ export class Database {
     pipeline.push({ $unwind: '$attendance' });
 
     if (Object.keys(attendanceMatch).length > 0) {
-      const attendanceMatchFormatted: any = {};
+      const attendanceMatchFormatted: Record<string, string> = {};
       Object.keys(attendanceMatch).forEach(key => {
         attendanceMatchFormatted[`attendance.${key}`] = attendanceMatch[key];
       });
