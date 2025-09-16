@@ -132,7 +132,7 @@ class LoginPage(BasePage):
         ctk.CTkButton(card, text="Continue", command=self.login_user, width=300, height=45, corner_radius=8).place(relx=0.5, rely=0.72, anchor="center")
         links_frame = ctk.CTkFrame(card, fg_color="transparent", bg_color="transparent"); links_frame.place(relx=0.5, rely=0.85, anchor="center", relwidth=0.8)
         ctk.CTkButton(links_frame, text="Forgot password?", fg_color="transparent", hover=False, font=ctk.CTkFont(underline=True)).pack(side="left", expand=True)
-        ctk.CTkButton(links_frame, text="Create account", fg_color="transparent", hover=False, font=ctk.CTkFont(underline=True)).pack(side="right", expand=True)
+        ctk.CTkButton(links_frame, text="Create account", command=lambda: controller.show_frame("SignupPage"), fg_color="transparent", hover=False, font=ctk.CTkFont(underline=True)).pack(side="right", expand=True)
 
     def login_user(self):
         user = self.controller.get_db().get_user(self.username_entry.get())
@@ -140,3 +140,102 @@ class LoginPage(BasePage):
             self.controller.current_user_role = user["role"]; self.controller.current_user_id = user["username"]
             self.controller.show_frame("TeacherDashboard" if user["role"] == "teacher" else "StudentDashboard")
         else: messagebox.showerror("Error", "Invalid username or password")
+
+
+class SignupPage(BasePage):
+    def __init__(self, parent, controller):
+        super().__init__(parent, controller)
+        self.configure(fg_color=MAIN_BG_COLOR)
+        
+        card = ctk.CTkFrame(self, fg_color=CARD_COLOR, width=450, height=550, corner_radius=20)
+        card.place(relx=0.5, rely=0.5, anchor="center")
+        
+        close_button = ctk.CTkButton(card, text="✕", command=lambda: controller.show_frame("LoginPage"), 
+                                    fg_color="transparent", hover_color="#444", width=30, height=30, 
+                                    font=ctk.CTkFont(size=18))
+        close_button.place(relx=1.0, y=0, x=-5, anchor="ne")
+        
+        ctk.CTkLabel(card, text="CREATE ACCOUNT", font=ctk.CTkFont(family=FONT_FAMILY, size=22, weight="bold"), 
+                    text_color=TEXT_COLOR_LIGHT).place(relx=0.5, rely=0.08, anchor="center")
+        
+        # Role selection
+        ctk.CTkLabel(card, text="Select Role:", font=ctk.CTkFont(size=14), 
+                    text_color=TEXT_COLOR_LIGHT).place(relx=0.5, rely=0.18, anchor="center")
+        self.role_var = ctk.StringVar(value="student")
+        role_frame = ctk.CTkFrame(card, fg_color="transparent")
+        role_frame.place(relx=0.5, rely=0.25, anchor="center")
+        ctk.CTkRadioButton(role_frame, text="Student", variable=self.role_var, value="student").pack(side="left", padx=20)
+        ctk.CTkRadioButton(role_frame, text="Teacher", variable=self.role_var, value="teacher").pack(side="left", padx=20)
+        
+        # Form fields
+        self.username_entry = ctk.CTkEntry(card, placeholder_text="Username", width=300, height=40, corner_radius=8)
+        self.username_entry.place(relx=0.5, rely=0.35, anchor="center")
+        
+        self.name_entry = ctk.CTkEntry(card, placeholder_text="Full Name", width=300, height=40, corner_radius=8)
+        self.name_entry.place(relx=0.5, rely=0.45, anchor="center")
+        
+        self.password_entry = ctk.CTkEntry(card, placeholder_text="Password", show="*", width=300, height=40, corner_radius=8)
+        self.password_entry.place(relx=0.5, rely=0.55, anchor="center")
+        
+        self.confirm_password_entry = ctk.CTkEntry(card, placeholder_text="Confirm Password", show="*", width=300, height=40, corner_radius=8)
+        self.confirm_password_entry.place(relx=0.5, rely=0.65, anchor="center")
+        
+        # Department and year for students
+        self.department_entry = ctk.CTkEntry(card, placeholder_text="Department (for students)", width=300, height=40, corner_radius=8)
+        self.department_entry.place(relx=0.5, rely=0.75, anchor="center")
+        
+        self.year_entry = ctk.CTkEntry(card, placeholder_text="Year (for students)", width=300, height=40, corner_radius=8)
+        self.year_entry.place(relx=0.5, rely=0.85, anchor="center")
+        
+        ctk.CTkButton(card, text="Create Account", command=self.create_account, width=300, height=45, corner_radius=8).place(relx=0.5, rely=0.95, anchor="center")
+        
+    def create_account(self):
+        username = self.username_entry.get().strip()
+        name = self.name_entry.get().strip()
+        password = self.password_entry.get()
+        confirm_password = self.confirm_password_entry.get()
+        role = self.role_var.get()
+        
+        # Validation
+        if not all([username, name, password, confirm_password]):
+            messagebox.showerror("Error", "Please fill in all required fields")
+            return
+            
+        if password != confirm_password:
+            messagebox.showerror("Error", "Passwords do not match")
+            return
+            
+        if len(password) < 6:
+            messagebox.showerror("Error", "Password must be at least 6 characters long")
+            return
+        
+        try:
+            if role == "teacher":
+                success, message = self.controller.get_db().register_teacher(username, password, name)
+                if success:
+                    messagebox.showinfo("Success", "Teacher account created successfully! You can now log in.")
+                    self.controller.show_frame("LoginPage")
+                else:
+                    messagebox.showerror("Error", message)
+            else:  # student
+                department = self.department_entry.get().strip()
+                year = self.year_entry.get().strip()
+                
+                if not all([department, year]):
+                    messagebox.showerror("Error", "Department and Year are required for students")
+                    return
+                
+                # For student registration, we'll create a basic record without face encoding
+                # Face encoding will be added later during the registration process
+                import numpy as np
+                dummy_encoding = np.zeros(128)  # Placeholder encoding
+                
+                success, message = self.controller.get_db().register_student(username, name, department, year, dummy_encoding)
+                if success:
+                    messagebox.showinfo("Success", "Student account created successfully! Please complete face registration and then log in.")
+                    self.controller.show_frame("LoginPage")
+                else:
+                    messagebox.showerror("Error", message)
+                    
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred: {str(e)}")

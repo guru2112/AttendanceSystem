@@ -65,8 +65,8 @@ class TestFaceScanPage(BasePage):
         if not self.controller.cap or not self.controller.cap.isOpened(): return
         ret, frame = self.controller.cap.read()
         if ret:
-            processed_frame, _ = self.controller.get_face_rec().process_frame_for_demo(frame)
-            pil_img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            processed_frame, recognized_names = self.controller.get_face_rec().process_frame_for_demo(frame)
+            pil_img = Image.fromarray(cv2.cvtColor(processed_frame, cv2.COLOR_BGR2RGB))
             ctk_img = ctk.CTkImage(light_image=pil_img, size=(pil_img.width, pil_img.height))
             self.video_label.configure(image=ctk_img); self.video_label.image = ctk_img
         self.controller.active_video_feed_func = self.after(15, self.update_feed)
