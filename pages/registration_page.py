@@ -5,8 +5,14 @@ from tkinter import messagebox
 from PIL import Image
 import cv2
 import time
-import face_recognition
+import numpy as np
 from .gui_components import BasePage, FONT_FAMILY, CARD_COLOR
+
+try:
+    import face_recognition
+    FACE_RECOGNITION_AVAILABLE = True
+except ImportError:
+    FACE_RECOGNITION_AVAILABLE = False
 
 class RegisterStudentPage(BasePage):
     def __init__(self, parent, controller):
@@ -54,8 +60,15 @@ class RegisterStudentPage(BasePage):
                 self.progress_bar.set(progress / 100); self.progress_label.configure(text=f"Face detected. Hold still... {progress}%")
                 top, r, bot, l = face_locations[0]; cv2.rectangle(frame, (l, top), (r, bot), (0, 255, 0), 2)
                 if elapsed > 5:
-                    enc = face_recognition.face_encodings(rgb_frame, [face_locations[0]])
-                    if enc: self.captured_encoding = enc[0]; self.progress_label.configure(text="Capture complete!")
+                    if FACE_RECOGNITION_AVAILABLE:
+                        enc = face_recognition.face_encodings(rgb_frame, [face_locations[0]])
+                        if enc: 
+                            self.captured_encoding = enc[0]
+                            self.progress_label.configure(text="Capture complete!")
+                    else:
+                        # Simulation mode - generate random encoding
+                        self.captured_encoding = np.random.rand(128)
+                        self.progress_label.configure(text="Capture complete! (Simulation mode)")
                     if self.controller.cap: self.controller.cap.release(); self.controller.cap = None
             else: self.capture_start_time = None; self.progress_bar.set(0); self.progress_label.configure(text="No face detected.")
             pil_img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
