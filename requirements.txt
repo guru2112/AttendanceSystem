@@ -1,10 +1,14 @@
 pymongo[srv]
 passlib
 bcrypt==3.2.0
-customtkinter
 opencv-python
 face_recognition
 Pillow
 numpy
 mtcnn
 tensorflow
+fastapi
+uvicorn[standard]
+python-multipart
+python-jose[cryptography]
+python-decouple
