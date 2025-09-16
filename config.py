@@ -1,5 +1,7 @@
 # config.py
 
-# IMPORTANT: Replace this with your actual MongoDB Atlas connection string.
-# Make sure your IP address is whitelisted in your Atlas cluster's network access settings.
-MONGO_URI = "mongodb+srv://Kamlesh-21:Guru2004@attendencesystem.nlapsic.mongodb.net/?retryWrites=true&w=majority&appName=Attendencesystem"
+import os
+
+# Get MongoDB URI from environment variables (repository secrets)
+# Fallback to hardcoded URI for development if environment variable is not set
+MONGO_URI = os.getenv('MONGO_URI', "mongodb+srv://Kamlesh-21:Guru2004@attendencesystem.nlapsic.mongodb.net/?retryWrites=true&w=majority&appName=Attendencesystem")

@@ -33,10 +33,10 @@ class StudentDashboard(BasePage):
         main_frame = ctk.CTkFrame(self, fg_color="transparent"); main_frame.pack(fill="both", expand=True, padx=40, pady=10)
         main_frame.grid_columnconfigure((0, 1), weight=1); main_frame.grid_rowconfigure((0, 1), weight=1)
 
-        self._create_card(main_frame, "👤+", "Register New Student", "Add a new user to the system.", lambda: controller.show_frame("RegisterStudentPage")).grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
-        self._create_card(main_frame, "🔄", "Update My Profile", "Update your personal details.", lambda: controller.show_frame("UpdateProfilePage")).grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
-        self._create_card(main_frame, "📸", "Test Face Scan", "Check if the system correctly recognizes your face.", lambda: controller.show_frame("TestFaceScanPage")).grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
-        self._create_card(main_frame, "📊", "View My Attendance", "Check your historical attendance records.", lambda: controller.show_frame("ViewAttendancePage", data={"mode": "my"})).grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
+        self._create_card(main_frame, "🔄", "Update My Profile", "Update your personal details.", lambda: controller.show_frame("UpdateProfilePage")).grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+        self._create_card(main_frame, "📸", "Test Face Scan", "Check if the system correctly recognizes your face.", lambda: controller.show_frame("TestFaceScanPage")).grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
+        self._create_card(main_frame, "📊", "View My Attendance", "Check your historical attendance records.", lambda: controller.show_frame("ViewAttendancePage", data={"mode": "my"})).grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+        self._create_card(main_frame, "ℹ️", "Account Info", "View your account information.", lambda: None).grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
         
     def _create_card(self, parent, icon, title, description, command):
         card = ctk.CTkFrame(parent, fg_color=CARD_COLOR, corner_radius=10)

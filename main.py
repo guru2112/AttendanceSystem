@@ -6,7 +6,7 @@ from face_recognition_logic import FaceRecognition
 
 # Import all page classes from their respective files in the 'pages' directory
 from pages.gui_components import Header, SlidingMenu
-from pages.auth_pages import LandingPage, LoginPage
+from pages.auth_pages import LandingPage, LoginPage, SignupPage
 from pages.dashboard_pages import TeacherDashboard, StudentDashboard
 from pages.registration_page import RegisterStudentPage
 from pages.update_pages import UpdateStudentPage, UpdateFacePage, UpdateProfilePage
@@ -31,7 +31,7 @@ class App(ctk.CTk):
         self.page_container.grid_rowconfigure(0, weight=1); self.page_container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for F in (LandingPage, LoginPage, TeacherDashboard, StudentDashboard, RegisterStudentPage, UpdateStudentPage, UpdateFacePage, AttendanceSetupPage, LiveAttendancePage, ViewAttendancePage, UpdateProfilePage, TestFaceScanPage):
+        for F in (LandingPage, LoginPage, SignupPage, TeacherDashboard, StudentDashboard, RegisterStudentPage, UpdateStudentPage, UpdateFacePage, AttendanceSetupPage, LiveAttendancePage, ViewAttendancePage, UpdateProfilePage, TestFaceScanPage):
             page_name = F.__name__
             frame = F(parent=self.page_container, controller=self)
             self.frames[page_name] = frame; frame.grid(row=0, column=0, sticky="nsew")
@@ -45,7 +45,7 @@ class App(ctk.CTk):
     def show_frame(self, page_name, data=None):
         if self.header_frame: self.header_frame.grid_forget()
         
-        is_auth_page = page_name in ["LandingPage", "LoginPage"]
+        is_auth_page = page_name in ["LandingPage", "LoginPage", "SignupPage"]
 
         if not is_auth_page:
             self.header_frame = Header(self, self)
